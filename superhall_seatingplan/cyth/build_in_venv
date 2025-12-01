@@ -1,0 +1,17 @@
+#!/bin/bash
+# build_in_venv.sh
+unset LDFLAGS
+unset CFLAGS
+rm -rf build/ sa_core.c sa_core*.so
+# Exit on any error
+set -e
+
+# Activate the virtual environment
+source ./venv/bin/activate
+
+# Run the build
+python3 setup.py build_ext --inplace
+
+# Deactivate the virtual environment
+deactivate
+

@@ -30,6 +30,7 @@ def get_Matrices(event_booking_html,swaps_xlsprd,seating_form_responses):
     table_types=['long','long','long','long','long']
 
     table_seats=[24,36,36,36,23] #HT, T1, T2, T3, T4 
+    # table_seats=[24,36,36,36,23-15] #HT, T1, T2, T3, T4 
     if np.sum(table_seats)!=len(guestlist.everyone):
         print(f'there are {np.sum(table_seats)} seats, but {len(guestlist.everyone)} people')
         sys.exit()

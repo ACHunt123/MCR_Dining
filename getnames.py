@@ -46,6 +46,12 @@ class AttendeeScraper:
                     n+=1
 
         #NOTE list(set( )) removes duplicates
+        if(0):#remove the shite from upay
+            input('removing extra guests accidentally given (thanks Upay)')
+            print(self.attendees_guest_map['Hugo Bos'])
+            self.attendees_guest_map['Hugo Bos']=[self.attendees_guest_map['Hugo Bos'][0]]
+            print(self.attendees_guest_map['Hugo Bos'])
+
         # self.attendees.extend(list(set(self.attendees_guest_map.keys()))) #list of the people that have booked (not including peoples guests)
         self.attendees.extend(self.attendees_guest_map.keys()) #list of the people that have booked (not including peoples guests)
         ### add to everyone 
@@ -59,6 +65,7 @@ class AttendeeScraper:
         if self.swap_filepath == None: sys.exit('need to specify the file first silly')
         ''' Load the swap people THAT WANT TO BE PUT IN SEATING PLAN'''
         included_colleges=['St Catz','Wolfson','Clare Hall']
+        # included_colleges=['St Catz','Wolfson']
         df = pd.read_excel(self.swap_filepath, engine='openpyxl')
         for index, row in df.iterrows():# go through each row in the spreadsheet
             name = row['Name']
@@ -84,8 +91,8 @@ class AttendeeScraper:
             sys.exit('need to get the data first silly')
         for attendee in self.attendees:
             print(attendee)
-            for guest in self.attendees_guest_map[attendee]:
-                print(f'__{guest} (guest of {attendee})')
+            # for guest in self.attendees_guest_map[attendee]:
+            #     print(f'__{guest} (guest of {attendee})')
 
     def find(self,name):
         ''' find the index of the name in the everyone list'''

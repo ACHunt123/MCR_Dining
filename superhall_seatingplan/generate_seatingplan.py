@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import sys
 from setup import get_Matrices,plot_setup
-from MCR_Dining.superhall_seatingplan.metrics_moves import total_happiness,all_happiness,trial_move,trial_move2,trial_move3,all_sat_with_guests,all_sat_with_friends
+from MCR_Dining.superhall_seatingplan.metrics_moves import total_happiness,all_happiness,all_sat_with_guests,all_sat_with_friends,trial_move3
+from MCR_Dining.superhall_seatingplan.cyth import sa_core
 
 import argparse
 import numpy as np
@@ -23,6 +24,7 @@ if args.seed is not None:
 
 folder='/mnt/c/Users/Cole/Downloads'
 folder='/home/colehunt/software/MCR-dining/data'
+folder='/home/ach221/Desktop'
 folder='/home/ach221/Downloads'
 ### Get the names from Upay and seating form responses to generate the Matrices required
 event_booking_html = f"{folder}/Upay - Event Booking.html"
@@ -44,16 +46,16 @@ p: Person location      p[seat#]= person#
 
 
 ### Initial conditions
-# s=np.arange(ntot)
-# p=np.arange(ntot)
+s=np.arange(ntot)
+p=np.arange(ntot)
 # Random permutation for seating
 
 
 ### Randomize initial confign
 # Set a different seed, e.g., 42
-s = np.random.permutation(ntot)
-p = np.empty_like(s)
-p[s] = np.arange(ntot)
+# s = np.random.permutation(ntot)
+# p = np.empty_like(s)
+# p[s] = np.arange(ntot)
 h=total_happiness(A,P,G,p,s)
 
 ### Setup the plot
@@ -76,18 +78,40 @@ p_best=p.copy()
 h = total_happiness(A, P, G, p, s)
 h0=h
 
+#convert everything to integers NOTE that this means that all weighting MUST be integers
+s = s.astype(np.int32)
+p = p.astype(np.int32)
+s_trial=s.copy()
+p_trial=p.copy()
+
+A_indptr = A.indptr.astype(np.int32)
+A_indices = A.indices.astype(np.int32)
+A_data = A.data.astype(np.int32)
+
+P_indptr  = P.indptr.astype(np.int32)
+P_indices = P.indices.astype(np.int32)
+P_data    = P.data.astype(np.int32)
+
+G_indptr  = G.indptr.astype(np.int32)
+G_indices = G.indices.astype(np.int32)
+G_data    = G.data.astype(np.int32)
+
+
 for it in range(nt):
     # pick two random people to swap
-    # i, j = np.random.choice(ntot, size=2, replace=False)
-    # s_trial, p_trial = swap_seats(i, j, s.copy(), p.copy())
-    # h_trial = total_happiness(A, P, G, p_trial, s_trial)
-    # delta_h = h_trial - h
-    # delta_h,s_trial,p_trial=trial_move2(ntot,s,p,A,P,G)
+    s_trial=s[:]
+    p_trial=p[:]
+    
+    # delta_h = sa_core.trial_move3(ntot, s,p,
+    #                         A_indptr, A_indices, A_data,
+    #                         P_indptr, P_indices, P_data,
+    #                         G_indptr, G_indices, G_data)
     delta_h,s_trial,p_trial=trial_move3(ntot,s,p,A,P,G)
-
+    
     # Metropolis acceptance rule
-    if delta_h > 0 or np.random.rand() < np.exp(delta_h / T):
+    # print(p[0:4])
 
+    if delta_h > 0 or np.random.rand() < np.exp(delta_h / T):
         h += delta_h
         s[:] = s_trial
         p[:] = p_trial
@@ -99,6 +123,12 @@ for it in range(nt):
         #  do moves of making people not mad:
         for pissed_indx in np.unique(np.concatenate([pissed1, pissed2])):
             delta_h,s_trial,p_trial=trial_move3(ntot,s,p,A,P,G,int(pissed_indx))
+            # s_trial=s[:]
+            # p_trial=p[:]
+            # delta_h = sa_core.trial_move3(ntot, s_trial,p_trial,
+            #                 A_indptr, A_indices, A_data,
+            #                 P_indptr, P_indices, P_data,
+            #                 G_indptr, G_indices, G_data)
             if delta_h > 0 or np.random.rand() < np.exp(delta_h / T):
                 h += delta_h
                 s[:] = s_trial
@@ -131,7 +161,7 @@ for it in range(nt):
         mean = np.mean(recent)
         var = np.var(recent) / (mean**2 + 1e-9)
         if var < tol:
-            print(f"🔥 Local minimum detected at iteration {it}. Reheating!")
+            print(f"Local minimum detected at iteration {it}. Reheating!")
             T *= 10   # reheat
             hlist = []  # reset history
 

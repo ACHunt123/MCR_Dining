@@ -1,0 +1,2 @@
+#!/bin/bash
+rm -rf build/ sa_core.c sa_core*.so
