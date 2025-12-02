@@ -27,7 +27,7 @@ def get_Matrices(event_booking_html,swaps_xlsprd,seating_form_responses):
     ### Setup the Hall (three long tables and 2 square in the gallery)
     # table_types=['long','long','long','long','square','square']
     # table_seats=[30,30,30,30,12,12]#144-120 =24
-    table_types=['long','long','long','long','long']
+    table_types=['high','long','long','long','long']
 
     table_seats=[24,36,36,36,23] #HT, T1, T2, T3, T4 
     # table_seats=[24,36,36,36,23-15] #HT, T1, T2, T3, T4 

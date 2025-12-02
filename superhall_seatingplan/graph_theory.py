@@ -89,7 +89,7 @@ for i, community in enumerate(partition):
 
 
 # Get the connected components
-components = g.components()  # igraph.GraphClustering object
+components = g.components()  
 
 # Print results
 for i, comp in enumerate(components):
