@@ -12,7 +12,13 @@ def setup_hall(table_types,posns,table_seats):
         seat_positions=np.zeros((nsts,2))
         A_block=np.zeros((nsts,nsts))
         if table_type=='long':
-            ''' Assigns the adjacency matrix for a long table. Works for odd number of people too (as the indexing is bi-directional)'''
+            ''' Assigns the adjacency matrix for a long table. Works for odd number of people too (as the indexing is bi-directional)
+            4   3
+            | /    
+            X - 5
+            | \
+            4   3
+            '''
             l_indices=np.arange(0,nsts//2)
             r_indices=np.arange(nsts//2,nsts)
             for i, (l_indx,r_indx) in enumerate(zip(l_indices,r_indices)):
@@ -58,7 +64,7 @@ def setup_hall(table_types,posns,table_seats):
                 seat_positions[indx,:] = seat_position
                 seat_position+=directions[int(indx//n1side),:]
                 ### weights
-                w_adjacent1=3
+                w_adjacent1=5
                 w_adjacent2=1
 
                 # directly next to eachother 

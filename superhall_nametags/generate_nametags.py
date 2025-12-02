@@ -12,6 +12,7 @@ folder='/home/ach221/Downloads'
 event_booking_html = f"{folder}/Upay - Event Booking.html"
 swaps_xls = f"{folder}/MTSuperhallSwaps2025-26.xlsx"
 nametag_template=f"superhall_nametags.docx"
+nametag_template=f"superhall_nametags_xmas.docx"
 outname=f"nametags_filled"
 
 ### Get the names from Upay

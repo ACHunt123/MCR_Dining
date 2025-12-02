@@ -110,10 +110,9 @@ def sat_with_friends(s,A,P,attendee,guestlist):
 
     count=0
     total=0
-    pissed=[]
     friends = P.getrow(person_i)      # preferences for other people (value is how much, index is the friend index)
     for friend_pref, friend_seat in zip(friends.data, s[friends.indices]):
-        if friend_pref<=3: continue #skip those who dont really care (the third priority)
+        if friend_pref<0: continue #skip those who dont wanna be with eachother 
         total+=1
         for adj_seat in adjacents.indices:
             if friend_seat == adj_seat:
@@ -136,9 +135,9 @@ def sat_with_guests(s,A,attendee,guestlist):
     pissed=[]
     nguests=len(guestlist.attendees_guest_map[name])
     if nguests>3:
-        threshold=2
+        threshold=2 #all of the adjacent seats (including diagonals)
     else:
-        threshold=4
+        threshold=4 #only the opposite and next to seats
 
     for guest in guestlist.attendees_guest_map[name]:
         total+=1

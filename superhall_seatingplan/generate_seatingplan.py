@@ -4,28 +4,28 @@ import numpy as np
 import sys
 from setup import get_Matrices,plot_setup
 from MCR_Dining.superhall_seatingplan.metrics_moves import total_happiness,all_happiness,all_sat_with_guests,all_sat_with_friends,trial_move3
+from MCR_Dining.superhall_seatingplan.metrics_moves import happiness,ij_andnearby
 from MCR_Dining.superhall_seatingplan.cyth import sa_core
 
 import argparse
 import numpy as np
-
 # Add argparse
 parser = argparse.ArgumentParser(description="Run seating / bath simulation with optional seed")
-parser.add_argument("--seed", type=int, default=None, help="Random seed")
+parser.add_argument("--seed", type=int, default=0, help="Random seed")
 args = parser.parse_args()
 
-# Set the seed if provided
-if args.seed is not None:
-    np.random.seed(args.seed)
-    import random
-    random.seed(args.seed)
-    print(f'using seed {args.seed}')
+# Set the seed
+np.random.seed(args.seed)
+import random
+random.seed(args.seed)
+sa_core.seed_c_rng(args.seed)
+print(f'using seed {args.seed}')
 
 
 folder='/mnt/c/Users/Cole/Downloads'
 folder='/home/colehunt/software/MCR-dining/data'
 folder='/home/ach221/Desktop'
-folder='/home/ach221/Downloads'
+# folder='/home/ach221/Downloads'
 ### Get the names from Upay and seating form responses to generate the Matrices required
 event_booking_html = f"{folder}/Upay - Event Booking.html"
 seating_form_responses = f"{folder}/Superhall Seating Request Form (Responses).xlsx"
@@ -53,9 +53,9 @@ p=np.arange(ntot)
 
 ### Randomize initial confign
 # Set a different seed, e.g., 42
-# s = np.random.permutation(ntot)
-# p = np.empty_like(s)
-# p[s] = np.arange(ntot)
+s = np.random.permutation(ntot)
+p = np.empty_like(s)
+p[s] = np.arange(ntot)
 h=total_happiness(A,P,G,p,s)
 
 ### Setup the plot
@@ -67,16 +67,19 @@ if show:
     def stop(event):sys.exit()
     stop_button.on_clicked(stop)
         
-T = 10
+T0 = 100
+T = T0
 hlist = []
-nt = 1_000_00
-cooling_rate = 0.9995
+nt = 1_000_000
+all_hlist=[]
+all_t=[]
+cooling_rate = 0.99995
 nhist = 50
 tol = 0.1
 h_best=0
 p_best=p.copy()
 h = total_happiness(A, P, G, p, s)
-h0=h
+
 
 #convert everything to integers NOTE that this means that all weighting MUST be integers
 s = s.astype(np.int32)
@@ -99,40 +102,36 @@ G_data    = G.data.astype(np.int32)
 
 for it in range(nt):
     # pick two random people to swap
-    s_trial=s[:]
-    p_trial=p[:]
     
-    # delta_h = sa_core.trial_move3(ntot, s,p,
-    #                         A_indptr, A_indices, A_data,
-    #                         P_indptr, P_indices, P_data,
-    #                         G_indptr, G_indices, G_data)
-    delta_h,s_trial,p_trial=trial_move3(ntot,s,p,A,P,G)
+    delta_h,s_trial,p_trial = sa_core.trial_move3(ntot, s,p,
+                            A_indptr, A_indices, A_data,
+                            P_indptr, P_indices, P_data,
+                            G_indptr, G_indices, G_data)
+    # delta_h,s_trial,p_trial=trial_move3(ntot,s,p,A,P,G)
+    # print(delta_h,'it',it,h)
     
     # Metropolis acceptance rule
-    # print(p[0:4])
-
     if delta_h > 0 or np.random.rand() < np.exp(delta_h / T):
         h += delta_h
         s[:] = s_trial
         p[:] = p_trial
 
-    # Every 100 steps, monitor progress, and help those who are pissed off
-    if it % 500 == 0:
+    # # Every 100 steps, monitor progress, and help those who are pissed off
+    if it % 1000 == 0:
         score1,total1,pissed1=all_sat_with_guests(s,A,guestlist)
         outstr,npissed2,score2,total2,pissed2=all_sat_with_friends(s,A,P,guestlist)
         #  do moves of making people not mad:
         for pissed_indx in np.unique(np.concatenate([pissed1, pissed2])):
-            delta_h,s_trial,p_trial=trial_move3(ntot,s,p,A,P,G,int(pissed_indx))
-            # s_trial=s[:]
-            # p_trial=p[:]
-            # delta_h = sa_core.trial_move3(ntot, s_trial,p_trial,
-            #                 A_indptr, A_indices, A_data,
-            #                 P_indptr, P_indices, P_data,
-            #                 G_indptr, G_indices, G_data)
+            # delta_h,s_trial,p_trial=trial_move3(ntot,s,p,A,P,G,int(pissed_indx))
+            delta_h,s_trial,p_trial = sa_core.trial_move3(ntot, s,p,
+                            A_indptr, A_indices, A_data,
+                            P_indptr, P_indices, P_data,
+                            G_indptr, G_indices, G_data,int(pissed_indx))
             if delta_h > 0 or np.random.rand() < np.exp(delta_h / T):
                 h += delta_h
                 s[:] = s_trial
                 p[:] = p_trial
+        score1,total1,pissed1=all_sat_with_guests(s,A,guestlist)
        
         print('SCORE1: {} of {}'.format(score1,total1))
         print(outstr)
@@ -171,9 +170,13 @@ for it in range(nt):
     if h>h_best:# and score1==total1:
         h_best=h
         p_best=p.copy()
-        s_best=s.copy()    
+        s_best=s.copy()  
 
-        
+    if it%100==0:
+        all_hlist.append(int(h))  
+        all_t.append(int(it))
+
+
 ## Save the results to the seating plan
 p=p_best.copy()
 s=s_best.copy()
@@ -204,9 +207,15 @@ np.savetxt("results.txt", data,
            header="score1 total1 score2 total2 number_pissed_off total_hapiness seed", 
            fmt="%.4f", 
            comments="")
-
-
-
+# save happiness graphs
+data=np.array([all_t,all_hlist])
+np.savetxt("h.txt", data.T, 
+           header="nt h", 
+           comments="")
+# ## plot the h
+# plt.plot(all_t,all_hlist)       
+# plt.show()
+# sys.exit()
 if show:
     plt.ioff()  # turn off interactive mode when done
     plt.show()
