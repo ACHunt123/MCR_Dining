@@ -103,14 +103,15 @@ class AttendeeScraper:
                 self.others.append(name)
         return
 
-    def pretty_print(self):
+    def pretty_print(self,print_guests=True):
         ''' print out the attendees and guests'''
         if self.attendees is None: 
             sys.exit('need to get the data first silly')
         for attendee in self.attendees:
             print(attendee)
             for guest in self.attendees_guest_map[attendee]:
-                print(f'__{guest} (guest of {attendee})')
+                if print_guests: 
+                    print(f'__{guest} (guest of {attendee})')
 
     def find(self,name):
         ''' find the index of the name in the everyone master name-list'''
@@ -125,3 +126,12 @@ class AttendeeScraper:
         return index_list[0]
 
 
+if __name__=='__main__':
+    folder='/home/ach221/Desktop'
+    event_booking_html = f"{folder}/Upay - Event Booking.html"
+
+        ### Get the names from Upay
+    guestlist=AttendeeScraper(event_booking_html)
+    guestlist.load_Upay()
+    # guestlist.load_Swaps()
+    guestlist.pretty_print(print_guests=False)
