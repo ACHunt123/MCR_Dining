@@ -2,7 +2,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import sys,random,argparse
-from setup import get_Matrices,plot_setup
+from MCR_Dining.superhall_seatingplan.setup import SetupMatrices
+from MCR_Dining.getnames import AttendeeScraper
+
 from MCR_Dining.superhall_seatingplan.metrics_moves import total_happiness,all_happiness,all_sat_with_guests,all_sat_with_friends
 from MCR_Dining.superhall_seatingplan.cyth import sa_core
 """
@@ -21,12 +23,13 @@ arrangements. It uses simulated annealing.
 """
 
 ### Inputs
-manual_removal=1 # Switch to do the manual removal of guests etc. described in xmas_superhall_fixes
+manual_removal=0 # Switch to do the manual removal of guests etc. described in xmas_superhall_fixes
 verbose=0        # Switch to make the outputs more verbose
-# get all of the file locations
+
+### file locations
 folder='/home/ach221/Desktop'
 event_booking_html = f"{folder}/Upay - Event Booking.html"
-seating_form_responses = f"{folder}/Xmas Superhall Seating Request Form (Responses).xlsx"
+seating_form_responses = f"{folder}/Superhall_Seating_Request_Jan31"
 swaps_xls = f"{folder}/MTSuperhallSwaps2025-26.xlsx"
 
 ### Set the seed with argparse
@@ -39,8 +42,24 @@ sa_core.seed_c_rng(args.seed)
 print(f'using seed {args.seed}')
 
 ### Get the names from Upay and seating form responses to generate the Matrices required
-A,P,G,seat_positions,guestlist = get_Matrices(event_booking_html,swaps_xls,seating_form_responses,verbose,manual_removal) #matrices in csr format
-namelist=guestlist.everyone
+guestlist=AttendeeScraper(verbose,manual_removal)
+guestlist.load_Upay(event_booking_html)
+# guestlist.load_Swaps(swaps_xls)
+guestlist.pretty_print()
+
+### Get the Matrices for the propagation
+MatMaker = SetupMatrices(guestlist,verbose,manual_removal)
+# Specify the tables, their number of seats, and locations
+if(0): # the whole hall
+    table_types=['high','long','long','long','long']
+    table_seats=[24,36,40,40,40]
+    table_posns=np.array([[3,6],[8,6],[13,6],[18,6],[23,6]])
+
+table_types=['high','long','long']
+table_seats=[24,36,16]
+MatMaker.specify_hall_params(table_types,table_seats,table_posns)
+
+A,P,G,seat_positions,guestlist = MatMaker.get_Matrices(seating_form_responses)
 ntot=A.shape[0]
 
 ### Randomize initial confign
@@ -56,7 +75,7 @@ show=0
 save_to_spreadsheet=0
 if show:
     plt.ion()
-    sc,cbar,ax,stop_button,text_labels=plot_setup(plt,seat_positions,all_happiness(A,P,G,p,s),p)
+    sc,cbar,ax,stop_button,text_labels=setupp.plot_setup(plt,seat_positions,all_happiness(A,P,G,p,s),p)
     def stop(event):sys.exit()
     stop_button.on_clicked(stop)
 
@@ -65,6 +84,7 @@ T0 = 100
 T = T0
 hlist = []
 nt = 2_000_000
+nt = 2_0
 all_hlist=[]
 all_t=[]
 cooling_rate = 0.99995
@@ -180,7 +200,7 @@ wb = openpyxl.load_workbook(filename)
 ws = wb.active 
 # Write each name into its corresponding cell
 for (col, row), person_indx in zip(seat_positions, p_best):
-    name=namelist[person_indx]
+    name=guestlist.everyone[person_indx]
     cell=ws.cell(row=int(row), column=int(col), value=name)
     # add a fill  for the guests and the hosts 
     if name in guestlist.attendees_guest_map:

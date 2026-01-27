@@ -5,9 +5,7 @@ import numpy as np
 
 
 class AttendeeScraper:
-    def __init__(self, Upay_filepath=None,swap_filepath=None, verbose=0, manual_removal=0):
-        self.Upay_filepath = Upay_filepath
-        self.swap_filepath = swap_filepath
+    def __init__(self, verbose=0, manual_removal=0):
         self.manual_removal=manual_removal
         self.verbose=verbose
         # initialize the arrays
@@ -33,14 +31,13 @@ class AttendeeScraper:
             else:
                 print(f'warning {name} not found')
 
-    def load_Upay(self):
-        if self.Upay_filepath == None: sys.exit('need to specify the file first silly')
+    def load_Upay(self,Upay_filepath):
         ''' Scrape the attendees and guests from Upay html
             Each booking_group is in "class_='booking-group'"
             In each one, the attendee has format "font-weight:500" and the guests of each one has "text-indent: 10px".
         '''
         #Open the html with soup
-        with open(self.Upay_filepath, 'r', encoding='utf-8') as f:
+        with open(Upay_filepath, 'r', encoding='utf-8') as f:
             html = f.read()
         self.soup = BeautifulSoup(html, 'html.parser')
         #find each group of attenge and their guests
@@ -82,12 +79,12 @@ class AttendeeScraper:
         self.nprop=len(self.everyone)
         return
     
-    def load_Swaps(self):
-        if self.swap_filepath == None: sys.exit('need to specify the file first silly')
-        ''' Load the swap people THAT WANT TO BE PUT IN SEATING PLAN (not used after the RK tantrum)'''
+    def load_Swaps(self,swap_filepath):
+        ''' Load the swap people THAT WANT TO BE PUT IN SEATING PLAN 
+        This is of course not used anymore because of RK's little tantrum'''
         included_colleges=['St Catz','Wolfson','Clare Hall']
         # included_colleges=['St Catz','Wolfson']
-        df = pd.read_excel(self.swap_filepath, engine='openpyxl')
+        df = pd.read_excel(swap_filepath, engine='openpyxl')
         for index, row in df.iterrows():# go through each row in the spreadsheet
             name = row['Name']
             college = row['College']
