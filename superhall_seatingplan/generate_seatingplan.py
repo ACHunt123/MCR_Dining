@@ -35,8 +35,8 @@ seating_form_responses = f"{folder}/Superhall_Seating_Request_Jan31"
 swaps_xls = f"{folder}/MTSuperhallSwaps2025-26.xlsx"
 
 ### Parameters   
-T0 = 100
-nt = 2_000_000
+T0 = 150
+nt = 1_500_000
 cooling_rate = 0.99995
 nhist = 50
 tol = 0.1
@@ -64,9 +64,9 @@ if(0): # the whole hall
     table_seats=[24,36,40,40,40]
     table_posns=np.array([[3,6],[8,6],[13,6],[18,6],[23,6]]) #x,-y [coordinate of top left seat]
 else:
-    table_types=['high','long','long']
-    table_seats=[24,36,16]
-    table_posns=np.array([[3,6],[8,6],[13,6]])
+    table_types=['long','long','long']
+    table_seats=[25,26,26]
+    table_posns=np.array([[8,6],[13,6],[18,6]])
 MatMaker.specify_hall_params(table_types,table_seats,table_posns,guestlist.Ntot)
 ## Get the matrices and metrics object
 pym,seat_positions,cyth_arrays = MatMaker.get_Matrices(seating_form_responses)
@@ -172,9 +172,9 @@ print(f'best happiness {h_best}')
 
 
 ### Save the statistics for the fit 
-template="Seating-plan-template.xlsx"
-outloc=Path(__file__).parent # Get the path to the current script
-fill_spreadsheet(template,outloc,seat_positions, p_best, guestlist)
+loc=Path(__file__).parent # Get the path to the current script
+template=f"{loc}/Seating-plan-template.xlsx"
+fill_spreadsheet(template,seat_positions, p_best, guestlist)
 
 score1,total1,_=pym.all_sat_with_guests(s)
 outstr,npissed,score2,total2,_=pym.all_sat_with_friends(s)
@@ -190,10 +190,10 @@ data=np.array([all_t,all_hlist])
 # np.savetxt("h.txt", data.T,header="nt h", comments="")
 ### plot the h
 plt.xlabel('t')
-plt.ylabel('h')
+plt.ylabel('happiness')
 plt.plot(all_t,all_hlist)    
 plt.title(f'Simulated annealing of seating-plan seed {args.seed}')   
-plt.savefig('hplot.pdf')
+plt.savefig('h_plot.pdf')
 # sys.exit()
 if show:
     plt.ioff()  # turn off interactive mode when done

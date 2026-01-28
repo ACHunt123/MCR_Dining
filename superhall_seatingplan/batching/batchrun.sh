@@ -9,6 +9,7 @@ if [ -z "$1" ]; then
 fi
 
 MAX_SEED=$1
+DATAFOLDER="data"
 quiet=''
 quiet='> /dev/null 2>&1'
 SCRIPT="python3 /home/ach221/software/MCR_Dining/superhall_seatingplan/generate_seatingplan.py"
@@ -17,7 +18,7 @@ NPARALLEL=30   # Number of parallel processes
 commands=()
 
 for SEED in $(seq 1 $MAX_SEED); do
-    FOLDER="data/seed_$SEED"
+    FOLDER="$DATAFOLDER/seed_$SEED"
     mkdir -p "$FOLDER"
     
     # Command to run simulation in its folder
