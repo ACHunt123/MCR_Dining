@@ -1,10 +1,9 @@
-from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import sys,random,argparse
 from MCR_Dining.superhall_seatingplan.setup import SetupMatrices
 from MCR_Dining.getnames import AttendeeScraper
-
+from MCR_Dining.superhall_seatingplan.utils import fill_spreadsheet, plot_setup
 from MCR_Dining.superhall_seatingplan.metrics_moves import total_happiness,all_happiness,all_sat_with_guests,all_sat_with_friends
 from MCR_Dining.superhall_seatingplan.cyth import sa_core
 """
@@ -23,8 +22,10 @@ arrangements. It uses simulated annealing.
 """
 
 ### Inputs
-manual_removal=0 # Switch to do the manual removal of guests etc. described in xmas_superhall_fixes
-verbose=0        # Switch to make the outputs more verbose
+manual_removal=0        # Switch to do the manual removal of guests etc. described in xmas_superhall_fixes
+verbose=0               # Switch to make the outputs more verbose
+show=0                  # Do an interactive plot showing the movement of seats
+save_to_spreadsheet=0   # Save the results to a spreadsheet
 
 ### file locations
 folder='/home/ach221/Desktop'
@@ -46,6 +47,7 @@ guestlist=AttendeeScraper(verbose,manual_removal)
 guestlist.load_Upay(event_booking_html)
 # guestlist.load_Swaps(swaps_xls)
 guestlist.pretty_print()
+Ntot=len(guestlist.everyone)
 
 ### Get the Matrices for the propagation
 MatMaker = SetupMatrices(guestlist,verbose,manual_removal)
@@ -57,7 +59,9 @@ if(0): # the whole hall
 
 table_types=['high','long','long']
 table_seats=[24,36,16]
-MatMaker.specify_hall_params(table_types,table_seats,table_posns)
+table_posns=np.array([[3,6],[8,6],[13,6]])
+
+MatMaker.specify_hall_params(table_types,table_seats,table_posns,Ntot)
 
 A,P,G,seat_positions,guestlist = MatMaker.get_Matrices(seating_form_responses)
 ntot=A.shape[0]
@@ -71,11 +75,9 @@ p[s] = np.arange(ntot)
 h=total_happiness(A,P,G,p,s)
 
 ### Setup the plot
-show=0
-save_to_spreadsheet=0
 if show:
     plt.ion()
-    sc,cbar,ax,stop_button,text_labels=setupp.plot_setup(plt,seat_positions,all_happiness(A,P,G,p,s),p)
+    sc,cbar,ax,stop_button,text_labels=plot_setup(plt,seat_positions,all_happiness(A,P,G,p,s),p)
     def stop(event):sys.exit()
     stop_button.on_clicked(stop)
 
@@ -98,8 +100,6 @@ h = total_happiness(A, P, G, p, s)
 #convert everything to integers NOTE that this means that all weighting MUST be integers
 s = s.astype(np.int32)
 p = p.astype(np.int32)
-s_trial=s.copy()
-p_trial=p.copy()
 def csr_to_int32(M): return M.indptr.astype(np.int32),M.indices.astype(np.int32),M.data.astype(np.int32)
 A_indptr, A_indices, A_data = csr_to_int32(A)
 P_indptr, P_indices, P_data = csr_to_int32(P)
@@ -141,7 +141,7 @@ for it in range(nt):
             delta_h,s_trial,p_trial,bias = sa_core.trial_move3(ntot, s,p,
                             A_indptr, A_indices, A_data,
                             P_indptr, P_indices, P_data,
-                            G_indptr, G_indices, G_data,int(pissed_indx))
+                            G_indptr, G_indices, G_data, int(pissed_indx))
             if delta_h+bias > 0 or np.random.rand() < np.exp((delta_h+bias) / T):
                 h += delta_h
                 s[:] = s_trial
@@ -186,32 +186,13 @@ if not valid_found:
 ## Save the results to the seating plan
 p=p_best.copy()
 s=s_best.copy()
-import openpyxl
-from openpyxl.styles import PatternFill
-guest_fill = PatternFill(start_color="FFFF00", end_color="FFFF00",fill_type="solid")    # yellow
-host_fill  = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")   # orange
 
 print(f'best happiness {h_best}')
 
-### Save the results to the seating plan xcell sheet
-base = Path(__file__).parent # Get the path to the current script
-filename = base / "Seating-plan-template.xlsx"
-wb = openpyxl.load_workbook(filename)
-ws = wb.active 
-# Write each name into its corresponding cell
-for (col, row), person_indx in zip(seat_positions, p_best):
-    name=guestlist.everyone[person_indx]
-    cell=ws.cell(row=int(row), column=int(col), value=name)
-    # add a fill  for the guests and the hosts 
-    if name in guestlist.attendees_guest_map:
-        if guestlist.attendees_guest_map[name]!=[]:
-            cell.fill = host_fill
-    if any(name in items for items in guestlist.attendees_guest_map.values()):
-        cell.fill = guest_fill
-# Save under a new name to keep the original template safe
-wb.save(f"seating_filled.xlsx")
 
 ### Save the statistics for the fit 
+fill_spreadsheet(seat_positions, p_best, guestlist)
+
 score1,total1,_=all_sat_with_guests(s,A,guestlist)
 outstr,npissed,score2,total2,_=all_sat_with_friends(s,A,P,guestlist)
 h = total_happiness(A, P, G, p, s)
