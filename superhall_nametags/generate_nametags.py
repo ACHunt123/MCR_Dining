@@ -4,28 +4,30 @@ from docx import Document
 
 
 
-
-folder='/mnt/c/Users/Cole/Downloads'
 folder='/home/colehunt/software/MCR-dining/data'
 folder='/home/ach221/Desktop'
-### Get the names from Upay and seating form responses to generate the Matrices required
+### Input files
 event_booking_html = f"{folder}/Upay - Event Booking.html"
 swaps_xls = f"{folder}/MTSuperhallSwaps2025-26.xlsx"
-nametag_template=f"superhall_nametags.docx"
-nametag_template=f"superhall_nametags_xmas.docx"
+
+### Nametag Template
+nametag_template=["superhall_nametags.docx","superhall_nametags_xmas.docx"][0]
 outname=f"nametags_filled"
 
 ### Get the names from Upay
-guestlist=AttendeeScraper(event_booking_html,swaps_xls)
-guestlist.load_Upay()
-# guestlist.load_Swaps()
-everyone=guestlist.everyone
-print(everyone)
-everyone=list(set(everyone))
-print(len(everyone))
+guestlist=AttendeeScraper()
+guestlist.load_Upay(event_booking_html)
+# guestlist.load_Swaps(swaps_xls)
+
+### Make sure no duplications and the correct number of people
+ntot=len(guestlist.everyone)
+duplicates=len(guestlist.everyone)==len(list(set(guestlist.everyone)))
+print(f"there are {['','no'][duplicates]} duplicates in the list of names")
+print(f'there are {ntot} people total (including dup.s if present)')
+
 ### Clean up the numbering from the guestlist
-everyone=[name.strip('(1)').strip('(2)').strip('(3)') for name in everyone]
-ntot=len(everyone)
+everyone=[name.strip('(1)').strip('(2)').strip('(3)') for name in guestlist.everyone]
+
 
 ### Generate the nametags
 doc = Document(nametag_template)
@@ -45,7 +47,6 @@ if n_outfiles == 1: outnames=[F'{outname}.docx']
 else: outnames=[f'{outname}({i+1}).docx' for i in range(n_outfiles)]
 
 
-ntot = len(everyone) # Number of names in the attendees list
 name_counter=0 #counter for which person we using
 for outname in outnames:
     # Insert names into the document

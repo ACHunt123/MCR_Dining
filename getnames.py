@@ -19,15 +19,18 @@ class AttendeeScraper:
             self.attendees_guest_map[recipient].extend(self.attendees_guest_map[donor])
             self.attendees_guest_map[donor]=[]
 
+    def vprint(self, string):
+        if self.verbose: print(string)
+
     def remove_people_n_their_guests(self,namelist,removedlist):
         '''remove a set of people from the list (and also their guests)'''
         for name in namelist:
             if name in self.attendees_guest_map:
-                if self.verbose: print(f'{name}')
+                self.vprint(f'Removing {name}')
                 removedlist.append(name)
                 removedlist.extend(self.attendees_guest_map[name])
-                if self.verbose and self.attendees_guest_map[name]!=[] : print(f'__{self.attendees_guest_map[name]}')
-                del self.attendees_guest_map[name]
+                if self.attendees_guest_map[name]!=[] : self.vprint(f'Removing {self.attendees_guest_map[name]}, guest of {name}')
+                del self.attendees_guest_map[name] #deletes both the person and their guests (done before guestlist.everyone is created)
             else:
                 print(f'warning {name} not found')
 

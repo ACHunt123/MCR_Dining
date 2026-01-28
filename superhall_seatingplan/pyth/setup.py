@@ -16,6 +16,9 @@ class SetupMatrices:
         # guestlist
         self.guestlist=guestlist
 
+    def vprint(self, string):
+        if self.verbose: print(string)
+
     def specify_hall_params(self,table_types,table_seats,table_posns,Ntot):
         '''
         Specify the occupies tables, number of seats for each
@@ -54,11 +57,13 @@ class SetupMatrices:
         prefs_weights=[4,4,3,-20]
         guest_pref=6 # weighting for sitting next to guests
         ###
+        self.vprint('\n Preferences from google form:\n')
         df = pd.read_excel(seating_form_responses, engine='openpyxl')
         P=np.zeros_like(A); G=np.zeros_like(A)
         for index, row in df.iterrows():# go through each row in the spreadsheet
             ## do the preferences for seating next to eachother
             name = row[name_Q]
+            self.vprint(name)
             name_indx=self.guestlist.find(name)
             if np.isnan(name_indx):
                 print(f'name {name} in superhall preference form not found')
@@ -66,6 +71,8 @@ class SetupMatrices:
             ## do each person's preference of sitting next to someone (or not...)
             for pl, Question in enumerate(prefs_Qs):
                 pref = row[Question]
+                verbose_label=['pref. 1','pref. 2','pref. 3','avoids']
+                self.vprint(f'__ {verbose_label[pl]}: {pref}')
                 if pd.isna(pref): continue # if the preference is not specified in the form continue
                 pref_indx=self.guestlist.find(pref) # find the index in the name list
                 if np.isnan(pref_indx):

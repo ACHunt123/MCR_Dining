@@ -24,14 +24,14 @@ arrangements. It uses simulated annealing.
 
 ### Inputs
 manual_removal=0        # Switch to do the manual removal of guests etc. described in xmas_superhall_fixes
-verbose=0               # Switch to make the outputs more verbose
+verbose=1               # Switch to make the outputs more verbose
 show=0                  # Do an interactive plot showing the movement of seats
 save_to_spreadsheet=1   # Save the results to a spreadsheet
 
 ### File locations
 folder='/home/ach221/Desktop'
 event_booking_html = f"{folder}/Upay - Event Booking.html"
-seating_form_responses = f"{folder}/Superhall_Seating_Request_Jan31"
+seating_form_responses = f"{folder}/Superhall_Seating_Request_Jan31_newest2"
 swaps_xls = f"{folder}/MTSuperhallSwaps2025-26.xlsx"
 
 ### Parameters   
@@ -48,13 +48,13 @@ args = parser.parse_args()
 np.random.seed(args.seed)
 random.seed(args.seed)
 sa_core.seed_c_rng(args.seed)
-print(f'using seed {args.seed}')
+if verbose: print(f'using seed {args.seed}')
 
 ### Get the names from Upay and seating form responses to generate the Matrices required
 guestlist=AttendeeScraper(verbose,manual_removal)
 guestlist.load_Upay(event_booking_html)
 # guestlist.load_Swaps(swaps_xls)
-guestlist.pretty_print(print_guests=True)
+if verbose: print('\n Full Guestlist\n');guestlist.pretty_print(print_guests=True)
 
 ### Get the Matrices for the propagation
 MatMaker = SetupMatrices(guestlist,verbose,manual_removal)
