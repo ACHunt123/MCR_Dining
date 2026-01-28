@@ -75,8 +75,7 @@ class AttendeeScraper:
             self.everyone.append(attendee)
             self.everyone.extend(guests)
         self.everyone=sorted(list(set(self.everyone))) #list(set( )) removes duplicates
-        
-        self.nprop=len(self.everyone)
+        self.Ntot=len(self.everyone)
         return
     
     def load_Swaps(self,swap_filepath):

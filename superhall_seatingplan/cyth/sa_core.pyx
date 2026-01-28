@@ -136,9 +136,9 @@ cdef void fisher_yates_shuffle(int[:] arr, int n):
 
 
 @cython.cdivision(True)
-def trial_move3(int ntot,
-                int[:] s,
+def trial_move3(int[:] s,
                 int[:] p,
+                int ntot,
                 int[:] A_indptr,
                 int[:] A_indices,
                 int[:] A_data,

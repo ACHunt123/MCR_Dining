@@ -5,6 +5,7 @@ import sys
 from MCR_Dining.getnames import AttendeeScraper
 from scipy.sparse import csr_matrix
 from MCR_Dining.superhall_seatingplan.hall_setup import setup_hall
+from MCR_Dining.superhall_seatingplan.metrics_moves import PyMetrics
 
 
 class SetupMatrices:
@@ -113,11 +114,20 @@ class SetupMatrices:
 
         P, G = self.read_form_responses(seating_form_responses,gallery_seat_indices,A)
 
-
-
-      
+        # convert to CSR format
+        A=csr_matrix(A)
+        P=csr_matrix(P)
+        G=csr_matrix(G)
+        # setup the cython array object
+        def csr_to_int32(M): return M.indptr.astype(np.int32),M.indices.astype(np.int32),M.data.astype(np.int32)
+        A_indptr, A_indices, A_data = csr_to_int32(A)
+        P_indptr, P_indices, P_data = csr_to_int32(P)
+        G_indptr, G_indices, G_data = csr_to_int32(G)
+        cyth_arrays=[self.guestlist.Ntot,A_indptr, A_indices, A_data,P_indptr, P_indices, P_data, G_indptr, G_indices, G_data]
         
-        return csr_matrix(A),csr_matrix(P),csr_matrix(G),seat_positions,self.guestlist
+        # build the python metrics object
+        pym=PyMetrics(A,P,G,self.guestlist)
+        return pym,seat_positions,cyth_arrays
 
     
     

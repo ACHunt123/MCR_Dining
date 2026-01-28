@@ -2983,7 +2983,7 @@ static PyObject *__pyx_pf_7sa_core_seed_c_rng(CYTHON_UNUSED PyObject *__pyx_self
 static PyObject *__pyx_pf_7sa_core_2happiness(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_person_i, __Pyx_memviewslice __pyx_v_s, __Pyx_memviewslice __pyx_v_A_indptr, __Pyx_memviewslice __pyx_v_A_indices, __Pyx_memviewslice __pyx_v_A_data, __Pyx_memviewslice __pyx_v_P_indptr, __Pyx_memviewslice __pyx_v_P_indices, __Pyx_memviewslice __pyx_v_P_data, __Pyx_memviewslice __pyx_v_G_indptr, __Pyx_memviewslice __pyx_v_G_indices, __Pyx_memviewslice __pyx_v_G_data); /* proto */
 static PyObject *__pyx_pf_7sa_core_4ij_andnearby(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_person_i, int __pyx_v_person_j, __Pyx_memviewslice __pyx_v_s, __Pyx_memviewslice __pyx_v_p, __Pyx_memviewslice __pyx_v_A_indptr, __Pyx_memviewslice __pyx_v_A_indices, __Pyx_memviewslice __pyx_v_A_data, __Pyx_memviewslice __pyx_v_P_indptr, __Pyx_memviewslice __pyx_v_P_indices, __Pyx_memviewslice __pyx_v_P_data, __Pyx_memviewslice __pyx_v_G_indptr, __Pyx_memviewslice __pyx_v_G_indices, __Pyx_memviewslice __pyx_v_G_data); /* proto */
 static PyObject *__pyx_pf_7sa_core_6swap_seats_inplace(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_s, __Pyx_memviewslice __pyx_v_p, int __pyx_v_person_i, int __pyx_v_person_j); /* proto */
-static PyObject *__pyx_pf_7sa_core_8trial_move3(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_ntot, __Pyx_memviewslice __pyx_v_s, __Pyx_memviewslice __pyx_v_p, __Pyx_memviewslice __pyx_v_A_indptr, __Pyx_memviewslice __pyx_v_A_indices, __Pyx_memviewslice __pyx_v_A_data, __Pyx_memviewslice __pyx_v_P_indptr, __Pyx_memviewslice __pyx_v_P_indices, __Pyx_memviewslice __pyx_v_P_data, __Pyx_memviewslice __pyx_v_G_indptr, __Pyx_memviewslice __pyx_v_G_indices, __Pyx_memviewslice __pyx_v_G_data, int __pyx_v_person_i, int __pyx_v_person_j); /* proto */
+static PyObject *__pyx_pf_7sa_core_8trial_move3(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_s, __Pyx_memviewslice __pyx_v_p, int __pyx_v_ntot, __Pyx_memviewslice __pyx_v_A_indptr, __Pyx_memviewslice __pyx_v_A_indices, __Pyx_memviewslice __pyx_v_A_data, __Pyx_memviewslice __pyx_v_P_indptr, __Pyx_memviewslice __pyx_v_P_indices, __Pyx_memviewslice __pyx_v_P_data, __Pyx_memviewslice __pyx_v_G_indptr, __Pyx_memviewslice __pyx_v_G_indices, __Pyx_memviewslice __pyx_v_G_data, int __pyx_v_person_i, int __pyx_v_person_j); /* proto */
 static PyObject *__pyx_tp_new_array(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_Enum(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_memoryview(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
@@ -17871,8 +17871,8 @@ static void __pyx_f_7sa_core_fisher_yates_shuffle(__Pyx_memviewslice __pyx_v_arr
  * 
  * 
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
- * def trial_move3(int ntot,
- *                 int[:] s,
+ * def trial_move3(int[:] s,
+ *                 int[:] p,
 */
 
 /* Python wrapper */
@@ -17892,9 +17892,9 @@ PyObject *const *__pyx_args, Py_ssize_t __pyx_nargs, PyObject *__pyx_kwds
 PyObject *__pyx_args, PyObject *__pyx_kwds
 #endif
 ) {
-  int __pyx_v_ntot;
   __Pyx_memviewslice __pyx_v_s = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_p = { 0, 0, { 0 }, { 0 }, { 0 } };
+  int __pyx_v_ntot;
   __Pyx_memviewslice __pyx_v_A_indptr = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_A_indices = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_v_A_data = { 0, 0, { 0 }, { 0 }, { 0 } };
@@ -17926,7 +17926,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   #endif
   __pyx_kwvalues = __Pyx_KwValues_FASTCALL(__pyx_args, __pyx_nargs);
   {
-    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_ntot,&__pyx_mstate_global->__pyx_n_u_s,&__pyx_mstate_global->__pyx_n_u_p,&__pyx_mstate_global->__pyx_n_u_A_indptr,&__pyx_mstate_global->__pyx_n_u_A_indices,&__pyx_mstate_global->__pyx_n_u_A_data,&__pyx_mstate_global->__pyx_n_u_P_indptr,&__pyx_mstate_global->__pyx_n_u_P_indices,&__pyx_mstate_global->__pyx_n_u_P_data,&__pyx_mstate_global->__pyx_n_u_G_indptr,&__pyx_mstate_global->__pyx_n_u_G_indices,&__pyx_mstate_global->__pyx_n_u_G_data,&__pyx_mstate_global->__pyx_n_u_person_i,&__pyx_mstate_global->__pyx_n_u_person_j,0};
+    PyObject ** const __pyx_pyargnames[] = {&__pyx_mstate_global->__pyx_n_u_s,&__pyx_mstate_global->__pyx_n_u_p,&__pyx_mstate_global->__pyx_n_u_ntot,&__pyx_mstate_global->__pyx_n_u_A_indptr,&__pyx_mstate_global->__pyx_n_u_A_indices,&__pyx_mstate_global->__pyx_n_u_A_data,&__pyx_mstate_global->__pyx_n_u_P_indptr,&__pyx_mstate_global->__pyx_n_u_P_indices,&__pyx_mstate_global->__pyx_n_u_P_data,&__pyx_mstate_global->__pyx_n_u_G_indptr,&__pyx_mstate_global->__pyx_n_u_G_indices,&__pyx_mstate_global->__pyx_n_u_G_data,&__pyx_mstate_global->__pyx_n_u_person_i,&__pyx_mstate_global->__pyx_n_u_person_j,0};
     const Py_ssize_t __pyx_kwds_len = (__pyx_kwds) ? __Pyx_NumKwargs_FASTCALL(__pyx_kwds) : 0;
     if (unlikely(__pyx_kwds_len) < 0) __PYX_ERR(0, 138, __pyx_L3_error)
     if (__pyx_kwds_len > 0) {
@@ -18034,9 +18034,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
         default: goto __pyx_L5_argtuple_error;
       }
     }
-    __pyx_v_ntot = __Pyx_PyLong_As_int(values[0]); if (unlikely((__pyx_v_ntot == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 139, __pyx_L3_error)
-    __pyx_v_s = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_s.memview)) __PYX_ERR(0, 140, __pyx_L3_error)
-    __pyx_v_p = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[2], PyBUF_WRITABLE); if (unlikely(!__pyx_v_p.memview)) __PYX_ERR(0, 141, __pyx_L3_error)
+    __pyx_v_s = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[0], PyBUF_WRITABLE); if (unlikely(!__pyx_v_s.memview)) __PYX_ERR(0, 139, __pyx_L3_error)
+    __pyx_v_p = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[1], PyBUF_WRITABLE); if (unlikely(!__pyx_v_p.memview)) __PYX_ERR(0, 140, __pyx_L3_error)
+    __pyx_v_ntot = __Pyx_PyLong_As_int(values[2]); if (unlikely((__pyx_v_ntot == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 141, __pyx_L3_error)
     __pyx_v_A_indptr = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[3], PyBUF_WRITABLE); if (unlikely(!__pyx_v_A_indptr.memview)) __PYX_ERR(0, 142, __pyx_L3_error)
     __pyx_v_A_indices = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[4], PyBUF_WRITABLE); if (unlikely(!__pyx_v_A_indices.memview)) __PYX_ERR(0, 143, __pyx_L3_error)
     __pyx_v_A_data = __Pyx_PyObject_to_MemoryviewSlice_ds_int(values[5], PyBUF_WRITABLE); if (unlikely(!__pyx_v_A_data.memview)) __PYX_ERR(0, 144, __pyx_L3_error)
@@ -18081,7 +18081,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_7sa_core_8trial_move3(__pyx_self, __pyx_v_ntot, __pyx_v_s, __pyx_v_p, __pyx_v_A_indptr, __pyx_v_A_indices, __pyx_v_A_data, __pyx_v_P_indptr, __pyx_v_P_indices, __pyx_v_P_data, __pyx_v_G_indptr, __pyx_v_G_indices, __pyx_v_G_data, __pyx_v_person_i, __pyx_v_person_j);
+  __pyx_r = __pyx_pf_7sa_core_8trial_move3(__pyx_self, __pyx_v_s, __pyx_v_p, __pyx_v_ntot, __pyx_v_A_indptr, __pyx_v_A_indices, __pyx_v_A_data, __pyx_v_P_indptr, __pyx_v_P_indices, __pyx_v_P_data, __pyx_v_G_indptr, __pyx_v_G_indices, __pyx_v_G_data, __pyx_v_person_i, __pyx_v_person_j);
 
   /* function exit code */
   for (Py_ssize_t __pyx_temp=0; __pyx_temp < (Py_ssize_t)(sizeof(values)/sizeof(values[0])); ++__pyx_temp) {
@@ -18102,7 +18102,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_7sa_core_8trial_move3(CYTHON_UNUSED PyObject *__pyx_self, int __pyx_v_ntot, __Pyx_memviewslice __pyx_v_s, __Pyx_memviewslice __pyx_v_p, __Pyx_memviewslice __pyx_v_A_indptr, __Pyx_memviewslice __pyx_v_A_indices, __Pyx_memviewslice __pyx_v_A_data, __Pyx_memviewslice __pyx_v_P_indptr, __Pyx_memviewslice __pyx_v_P_indices, __Pyx_memviewslice __pyx_v_P_data, __Pyx_memviewslice __pyx_v_G_indptr, __Pyx_memviewslice __pyx_v_G_indices, __Pyx_memviewslice __pyx_v_G_data, int __pyx_v_person_i, int __pyx_v_person_j) {
+static PyObject *__pyx_pf_7sa_core_8trial_move3(CYTHON_UNUSED PyObject *__pyx_self, __Pyx_memviewslice __pyx_v_s, __Pyx_memviewslice __pyx_v_p, int __pyx_v_ntot, __Pyx_memviewslice __pyx_v_A_indptr, __Pyx_memviewslice __pyx_v_A_indices, __Pyx_memviewslice __pyx_v_A_data, __Pyx_memviewslice __pyx_v_P_indptr, __Pyx_memviewslice __pyx_v_P_indices, __Pyx_memviewslice __pyx_v_P_data, __Pyx_memviewslice __pyx_v_G_indptr, __Pyx_memviewslice __pyx_v_G_indices, __Pyx_memviewslice __pyx_v_G_data, int __pyx_v_person_i, int __pyx_v_person_j) {
   CYTHON_UNUSED PyObject *__pyx_v_npr = NULL;
   int __pyx_v_h0;
   int __pyx_v_h1;
@@ -19253,8 +19253,8 @@ static PyObject *__pyx_pf_7sa_core_8trial_move3(CYTHON_UNUSED PyObject *__pyx_se
  * 
  * 
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
- * def trial_move3(int ntot,
- *                 int[:] s,
+ * def trial_move3(int[:] s,
+ *                 int[:] p,
 */
 
   /* function exit code */
@@ -21218,8 +21218,8 @@ __Pyx_RefNannySetupContext("PyInit_sa_core", 0);
  * 
  * 
  * @cython.cdivision(True)             # <<<<<<<<<<<<<<
- * def trial_move3(int ntot,
- *                 int[:] s,
+ * def trial_move3(int[:] s,
+ *                 int[:] p,
 */
   __pyx_t_9 = PyTuple_Pack(2, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
@@ -21510,7 +21510,7 @@ static int __Pyx_CreateCodeObjects(__pyx_mstatetype *__pyx_mstate) {
   }
   {
     const __Pyx_PyCode_New_function_description descr = {14, 0, 0, 36, (unsigned int)(CO_OPTIMIZED|CO_NEWLOCALS), 138};
-    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_ntot, __pyx_mstate->__pyx_n_u_s, __pyx_mstate->__pyx_n_u_p, __pyx_mstate->__pyx_n_u_A_indptr, __pyx_mstate->__pyx_n_u_A_indices, __pyx_mstate->__pyx_n_u_A_data, __pyx_mstate->__pyx_n_u_P_indptr, __pyx_mstate->__pyx_n_u_P_indices, __pyx_mstate->__pyx_n_u_P_data, __pyx_mstate->__pyx_n_u_G_indptr, __pyx_mstate->__pyx_n_u_G_indices, __pyx_mstate->__pyx_n_u_G_data, __pyx_mstate->__pyx_n_u_person_i, __pyx_mstate->__pyx_n_u_person_j, __pyx_mstate->__pyx_n_u_npr, __pyx_mstate->__pyx_n_u_h0, __pyx_mstate->__pyx_n_u_h1, __pyx_mstate->__pyx_n_u_s_trial, __pyx_mstate->__pyx_n_u_p_trial, __pyx_mstate->__pyx_n_u_n_friends, __pyx_mstate->__pyx_n_u_n_adjacents, __pyx_mstate->__pyx_n_u_seat_i, __pyx_mstate->__pyx_n_u_n, __pyx_mstate->__pyx_n_u_m, __pyx_mstate->__pyx_n_u_l, __pyx_mstate->__pyx_n_u_nearby, __pyx_mstate->__pyx_n_u_filled, __pyx_mstate->__pyx_n_u_all_done, __pyx_mstate->__pyx_n_u_bias, __pyx_mstate->__pyx_n_u_adj_i, __pyx_mstate->__pyx_n_u_friend_perm, __pyx_mstate->__pyx_n_u_friend_pref, __pyx_mstate->__pyx_n_u_friend_i, __pyx_mstate->__pyx_n_u_friend_seat, __pyx_mstate->__pyx_n_u_adj_seat, __pyx_mstate->__pyx_n_u_adj_perm};
+    PyObject* const varnames[] = {__pyx_mstate->__pyx_n_u_s, __pyx_mstate->__pyx_n_u_p, __pyx_mstate->__pyx_n_u_ntot, __pyx_mstate->__pyx_n_u_A_indptr, __pyx_mstate->__pyx_n_u_A_indices, __pyx_mstate->__pyx_n_u_A_data, __pyx_mstate->__pyx_n_u_P_indptr, __pyx_mstate->__pyx_n_u_P_indices, __pyx_mstate->__pyx_n_u_P_data, __pyx_mstate->__pyx_n_u_G_indptr, __pyx_mstate->__pyx_n_u_G_indices, __pyx_mstate->__pyx_n_u_G_data, __pyx_mstate->__pyx_n_u_person_i, __pyx_mstate->__pyx_n_u_person_j, __pyx_mstate->__pyx_n_u_npr, __pyx_mstate->__pyx_n_u_h0, __pyx_mstate->__pyx_n_u_h1, __pyx_mstate->__pyx_n_u_s_trial, __pyx_mstate->__pyx_n_u_p_trial, __pyx_mstate->__pyx_n_u_n_friends, __pyx_mstate->__pyx_n_u_n_adjacents, __pyx_mstate->__pyx_n_u_seat_i, __pyx_mstate->__pyx_n_u_n, __pyx_mstate->__pyx_n_u_m, __pyx_mstate->__pyx_n_u_l, __pyx_mstate->__pyx_n_u_nearby, __pyx_mstate->__pyx_n_u_filled, __pyx_mstate->__pyx_n_u_all_done, __pyx_mstate->__pyx_n_u_bias, __pyx_mstate->__pyx_n_u_adj_i, __pyx_mstate->__pyx_n_u_friend_perm, __pyx_mstate->__pyx_n_u_friend_pref, __pyx_mstate->__pyx_n_u_friend_i, __pyx_mstate->__pyx_n_u_friend_seat, __pyx_mstate->__pyx_n_u_adj_seat, __pyx_mstate->__pyx_n_u_adj_perm};
     __pyx_mstate_global->__pyx_codeobj_tab[4] = __Pyx_PyCode_New(descr, varnames, __pyx_mstate->__pyx_kp_u_sa_core_pyx, __pyx_mstate->__pyx_n_u_trial_move3, __pyx_mstate->__pyx_kp_b_iso88591_82U_82U_A_A_a_y_4s_A_y_1_HAXQb, tuple_dedup_map); if (unlikely(!__pyx_mstate_global->__pyx_codeobj_tab[4])) goto bad;
   }
   Py_DECREF(tuple_dedup_map);

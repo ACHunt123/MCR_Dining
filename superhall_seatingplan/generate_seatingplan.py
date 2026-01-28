@@ -4,7 +4,7 @@ import sys,random,argparse
 from MCR_Dining.superhall_seatingplan.setup import SetupMatrices
 from MCR_Dining.getnames import AttendeeScraper
 from MCR_Dining.superhall_seatingplan.utils import fill_spreadsheet, plot_setup
-from MCR_Dining.superhall_seatingplan.metrics_moves import total_happiness,all_happiness,all_sat_with_guests,all_sat_with_friends
+# Import the super fast cython stuff
 from MCR_Dining.superhall_seatingplan.cyth import sa_core
 """
 ============================================================
@@ -25,13 +25,20 @@ arrangements. It uses simulated annealing.
 manual_removal=0        # Switch to do the manual removal of guests etc. described in xmas_superhall_fixes
 verbose=0               # Switch to make the outputs more verbose
 show=0                  # Do an interactive plot showing the movement of seats
-save_to_spreadsheet=0   # Save the results to a spreadsheet
+save_to_spreadsheet=1   # Save the results to a spreadsheet
 
-### file locations
+### File locations
 folder='/home/ach221/Desktop'
 event_booking_html = f"{folder}/Upay - Event Booking.html"
 seating_form_responses = f"{folder}/Superhall_Seating_Request_Jan31"
 swaps_xls = f"{folder}/MTSuperhallSwaps2025-26.xlsx"
+
+### Parameters   
+T0 = 100
+nt = 2_000_000
+cooling_rate = 0.99995
+nhist = 50
+tol = 0.1
 
 ### Set the seed with argparse
 parser = argparse.ArgumentParser(description="Run seating / bath simulation with optional seed")
@@ -46,72 +53,50 @@ print(f'using seed {args.seed}')
 guestlist=AttendeeScraper(verbose,manual_removal)
 guestlist.load_Upay(event_booking_html)
 # guestlist.load_Swaps(swaps_xls)
-guestlist.pretty_print()
-Ntot=len(guestlist.everyone)
+guestlist.pretty_print(print_guests=True)
 
 ### Get the Matrices for the propagation
 MatMaker = SetupMatrices(guestlist,verbose,manual_removal)
-# Specify the tables, their number of seats, and locations
+## Specify the tables, their number of seats, and locations
 if(0): # the whole hall
     table_types=['high','long','long','long','long']
     table_seats=[24,36,40,40,40]
-    table_posns=np.array([[3,6],[8,6],[13,6],[18,6],[23,6]])
+    table_posns=np.array([[3,6],[8,6],[13,6],[18,6],[23,6]]) #x,-y [coordinate of top left seat]
+else:
+    table_types=['high','long','long']
+    table_seats=[24,36,16]
+    table_posns=np.array([[3,6],[8,6],[13,6]])
+MatMaker.specify_hall_params(table_types,table_seats,table_posns,guestlist.Ntot)
+## Get the matrices and metrics object
+pym,seat_positions,cyth_arrays = MatMaker.get_Matrices(seating_form_responses)
 
-table_types=['high','long','long']
-table_seats=[24,36,16]
-table_posns=np.array([[3,6],[8,6],[13,6]])
 
-MatMaker.specify_hall_params(table_types,table_seats,table_posns,Ntot)
-
-A,P,G,seat_positions,guestlist = MatMaker.get_Matrices(seating_form_responses)
-ntot=A.shape[0]
 
 ### Randomize initial confign
-s=np.arange(ntot,dtype=np.int32)
-p=np.arange(ntot,dtype=np.int32)
-s = np.random.permutation(ntot)
-p = np.empty_like(s)
-p[s] = np.arange(ntot)
-h=total_happiness(A,P,G,p,s)
+s = np.random.permutation(guestlist.Ntot).astype(np.int32)
+p = np.empty_like(s,dtype=np.int32)
+p[s] = np.arange(guestlist.Ntot,dtype=np.int32)
 
 ### Setup the plot
 if show:
     plt.ion()
-    sc,cbar,ax,stop_button,text_labels=plot_setup(plt,seat_positions,all_happiness(A,P,G,p,s),p)
+    sc,cbar,ax,stop_button,text_labels=plot_setup(plt,seat_positions,pym.all_happiness(p,s),p)
     def stop(event):sys.exit()
     stop_button.on_clicked(stop)
 
-### Parameters   
-T0 = 100
-T = T0
+
+## Initialize arrays and counters
+h = pym.total_happiness(p, s)
+valid_found=0
+T = T0  # set current temperature
 hlist = []
-nt = 2_000_000
-nt = 2_0
 all_hlist=[]
 all_t=[]
-cooling_rate = 0.99995
-nhist = 50
-tol = 0.1
 h_best=0
 p_best=p.copy()
-h = total_happiness(A, P, G, p, s)
-
-
-#convert everything to integers NOTE that this means that all weighting MUST be integers
-s = s.astype(np.int32)
-p = p.astype(np.int32)
-def csr_to_int32(M): return M.indptr.astype(np.int32),M.indices.astype(np.int32),M.data.astype(np.int32)
-A_indptr, A_indices, A_data = csr_to_int32(A)
-P_indptr, P_indices, P_data = csr_to_int32(P)
-G_indptr, G_indices, G_data = csr_to_int32(G)
-
-valid_found=0
 for it in range(nt):
     # monte carlo move
-    delta_h,s_trial,p_trial,_ = sa_core.trial_move3(ntot, s,p,
-                            A_indptr, A_indices, A_data,
-                            P_indptr, P_indices, P_data,
-                            G_indptr, G_indices, G_data)
+    delta_h,s_trial,p_trial,_ = sa_core.trial_move3(s,p,*cyth_arrays)
 
     # Metropolis acceptance rule
     if delta_h > 0 or np.random.rand() < np.exp(delta_h / T):
@@ -122,8 +107,8 @@ for it in range(nt):
     # help those who are pissed off once the time is late VERY AGGRESSIVE BIAS (+100)
     if it % 1000 == 0:
         # get the annoyed people
-        score1,total1,pissed1=all_sat_with_guests(s,A,guestlist)
-        outstr,npissed2,score2,total2,pissed2=all_sat_with_friends(s,A,P,guestlist)
+        outstr,npissed2,score2,total2,pissed2=pym.all_sat_with_friends(s)
+        score1,total1,pissed1=pym.all_sat_with_guests(s)
         all_pissed=np.unique(np.concatenate([pissed1, pissed2]))
         # Output the situation
         print('SCORE1: {} of {}'.format(score1,total1))
@@ -138,10 +123,7 @@ for it in range(nt):
                 s_best=s.copy() 
         #  Do forced moves of making the pissed people not mad:
         for pissed_indx in all_pissed:
-            delta_h,s_trial,p_trial,bias = sa_core.trial_move3(ntot, s,p,
-                            A_indptr, A_indices, A_data,
-                            P_indptr, P_indices, P_data,
-                            G_indptr, G_indices, G_data, int(pissed_indx))
+            delta_h,s_trial,p_trial,bias = sa_core.trial_move3( s,p,*cyth_arrays, int(pissed_indx))
             if delta_h+bias > 0 or np.random.rand() < np.exp((delta_h+bias) / T):
                 h += delta_h
                 s[:] = s_trial
@@ -150,7 +132,7 @@ for it in range(nt):
 
         if show:
             ax.set_title(f"Update {it+1}, happiness {h}")
-            hall=all_happiness(A,P,G,p,s)
+            hall=pym.all_happiness(p,s)
             sc.set_array(hall)  # update scatter color data
             for seat_number, t in enumerate(text_labels):
                 t.set_text(p[seat_number])
@@ -193,9 +175,9 @@ print(f'best happiness {h_best}')
 ### Save the statistics for the fit 
 fill_spreadsheet(seat_positions, p_best, guestlist)
 
-score1,total1,_=all_sat_with_guests(s,A,guestlist)
-outstr,npissed,score2,total2,_=all_sat_with_friends(s,A,P,guestlist)
-h = total_happiness(A, P, G, p, s)
+score1,total1,_=pym.all_sat_with_guests(s)
+outstr,npissed,score2,total2,_=pym.all_sat_with_friends(s)
+h = pym.total_happiness(p, s)
 data = np.array([[score1, total1,score2,total2, npissed, h,args.seed]])
 np.savetxt("results.txt", data, 
            header="# score1 total1 score2 total2 number_pissed_off total_hapiness seed", 
