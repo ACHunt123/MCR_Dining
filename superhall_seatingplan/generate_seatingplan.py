@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from pathlib import Path
 import sys,random,argparse
-from MCR_Dining.superhall_seatingplan.setup import SetupMatrices
+from MCR_Dining.superhall_seatingplan.pyth.setup import SetupMatrices
 from MCR_Dining.getnames import AttendeeScraper
-from MCR_Dining.superhall_seatingplan.utils import fill_spreadsheet, plot_setup
+from MCR_Dining.superhall_seatingplan.pyth.utils import fill_spreadsheet, plot_setup
 # Import the super fast cython stuff
 from MCR_Dining.superhall_seatingplan.cyth import sa_core
 """
@@ -71,7 +72,6 @@ MatMaker.specify_hall_params(table_types,table_seats,table_posns,guestlist.Ntot)
 pym,seat_positions,cyth_arrays = MatMaker.get_Matrices(seating_form_responses)
 
 
-
 ### Randomize initial confign
 s = np.random.permutation(guestlist.Ntot).astype(np.int32)
 p = np.empty_like(s,dtype=np.int32)
@@ -84,8 +84,7 @@ if show:
     def stop(event):sys.exit()
     stop_button.on_clicked(stop)
 
-
-## Initialize arrays and counters
+### Initialize arrays and counters
 h = pym.total_happiness(p, s)
 valid_found=0
 T = T0  # set current temperature
@@ -173,7 +172,9 @@ print(f'best happiness {h_best}')
 
 
 ### Save the statistics for the fit 
-fill_spreadsheet(seat_positions, p_best, guestlist)
+template="Seating-plan-template.xlsx"
+outloc=Path(__file__).parent # Get the path to the current script
+fill_spreadsheet(template,outloc,seat_positions, p_best, guestlist)
 
 score1,total1,_=pym.all_sat_with_guests(s)
 outstr,npissed,score2,total2,_=pym.all_sat_with_friends(s)

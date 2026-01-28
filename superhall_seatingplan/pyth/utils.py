@@ -1,17 +1,13 @@
-from pathlib import Path
 from matplotlib.widgets import Button
 import openpyxl
 from openpyxl.styles import PatternFill
 
-def fill_spreadsheet(seat_positions, p_best, guestlist):
+def fill_spreadsheet(template,outloc,seat_positions,p_best,guestlist):
     guest_fill = PatternFill(start_color="FFFF00", end_color="FFFF00",fill_type="solid")    # yellow
     host_fill  = PatternFill(start_color="FFA500", end_color="FFA500", fill_type="solid")   # orange
 
-
-    ### Save the results to the seating plan xcell sheet
-    base = Path(__file__).parent # Get the path to the current script
-    filename = base / "Seating-plan-template.xlsx"
-    wb = openpyxl.load_workbook(filename)
+    ### Save the results to the seating plan xcell sheet    
+    wb = openpyxl.load_workbook(template)
     ws = wb.active 
     # Write each name into its corresponding cell
     for (col, row), person_indx in zip(seat_positions, p_best):
@@ -24,7 +20,8 @@ def fill_spreadsheet(seat_positions, p_best, guestlist):
         if any(name in items for items in guestlist.attendees_guest_map.values()):
             cell.fill = guest_fill
     # Save under a new name to keep the original template safe
-    wb.save(f"seating_filled.xlsx")
+    outname = outloc / "seating_filled.xlsx"
+    wb.save(outname)
 
 def plot_setup(plt,seat_positions,happiness,p,mode='interactive'):
         ### Setup the plot

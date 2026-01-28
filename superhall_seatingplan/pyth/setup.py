@@ -4,8 +4,8 @@ import numpy as np
 import sys
 from MCR_Dining.getnames import AttendeeScraper
 from scipy.sparse import csr_matrix
-from MCR_Dining.superhall_seatingplan.hall_setup import setup_hall
-from MCR_Dining.superhall_seatingplan.metrics_moves import PyMetrics
+from MCR_Dining.superhall_seatingplan.pyth.hall_setup import setup_hall
+from MCR_Dining.superhall_seatingplan.pyth.metrics_moves import PyMetrics
 
 
 class SetupMatrices:
