@@ -33,6 +33,7 @@ folder='/home/ach221/Desktop'
 event_booking_html = f"{folder}/Upay - Event Booking.html"
 seating_form_responses = f"{folder}/Superhall_Seating_Request_Jan31_newest2"
 swaps_xls = f"{folder}/MTSuperhallSwaps2025-26.xlsx"
+# NOTE the output will automatically be put in the same directory as where the file is being run
 
 ### Parameters   
 T0 = 150
@@ -173,7 +174,7 @@ print(f'best happiness {h_best}')
 
 ### Save the statistics for the fit 
 loc=Path(__file__).parent # Get the path to the current script
-template=f"{loc}/Seating-plan-template.xlsx"
+template=f"{loc}/superhall_seatingplan/Seating-plan-template.xlsx"
 fill_spreadsheet(template,seat_positions, p_best, guestlist)
 
 score1,total1,_=pym.all_sat_with_guests(s)

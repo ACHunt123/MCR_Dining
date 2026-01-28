@@ -145,6 +145,6 @@ Icon?
 **/nametags_filled*
 
 # the fixes required (as they contain names)
-**/*superhall_fixes.py
+**/xmas_superhall_fixes.py
 
 **/results.txt

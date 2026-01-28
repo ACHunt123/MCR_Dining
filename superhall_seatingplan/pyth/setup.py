@@ -2,7 +2,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
-from MCR_Dining.getnames import AttendeeScraper
 from scipy.sparse import csr_matrix
 from MCR_Dining.superhall_seatingplan.pyth.hall_setup import setup_hall
 from MCR_Dining.superhall_seatingplan.pyth.metrics_moves import PyMetrics
@@ -101,7 +100,7 @@ class SetupMatrices:
 
         
         if(self.manual_removal):## add in the manual fixes to the preferences
-            from MCR_Dining.xmas_superhall_fixes import extra_preferences
+            from MCR_Dining.superhall_fixes import extra_preferences
             extra_preferences(P,self.guestlist)
 
         return P, G

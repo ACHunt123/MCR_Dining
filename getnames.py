@@ -67,7 +67,7 @@ class AttendeeScraper:
         
         self.n_removed=0
         if(self.manual_removal): # manual removal of people from calculation because they are difficult
-            from MCR_Dining.xmas_superhall_fixes import remove_extras_from_algo,move_guests_to_correct_hosts
+            from MCR_Dining.superhall_fixes import remove_extras_from_algo,move_guests_to_correct_hosts
             remove_extras_from_algo(self)
             move_guests_to_correct_hosts(self)
 

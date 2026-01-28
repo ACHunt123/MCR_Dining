@@ -1,4 +1,5 @@
 import sys,math
+from pathlib import Path
 from MCR_Dining.getnames import AttendeeScraper
 from docx import Document
 
@@ -30,7 +31,9 @@ everyone=[name.strip('(1)').strip('(2)').strip('(3)') for name in guestlist.ever
 
 
 ### Generate the nametags
-doc = Document(nametag_template)
+loc=Path(__file__).parent # Get the path to the current script
+nametag_template_loc=loc/"superhall_nametags"/nametag_template
+doc = Document(nametag_template_loc)
 # get the number of placeholdes
 table = doc.tables[0]
 placeholder_count = 0
@@ -50,7 +53,7 @@ else: outnames=[f'{outname}({i+1}).docx' for i in range(n_outfiles)]
 name_counter=0 #counter for which person we using
 for outname in outnames:
     # Insert names into the document
-    doc = Document(nametag_template) #reload
+    doc = Document(nametag_template_loc) #reload
 
     # Document is formatted as a table (see printdocstructure.py for more details)
     table=doc.tables[0] 
