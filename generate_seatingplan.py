@@ -55,9 +55,8 @@ if verbose: print(f'using seed {args.seed}')
 guestlist=AttendeeScraper(verbose,manual_removal)
 guestlist.load_Upay(event_booking_html)
 # guestlist.load_Swaps(swaps_xls)
-if verbose: print('\n Full Guestlist\n');guestlist.pretty_print(print_guests=True)
-print(guestlist.Ntot)
-exit()
+if verbose: print('\n Full Guestlist\n');guestlist.pretty_print(print_guests=True);print('total number',guestlist.Ntot)
+
 ### Get the Matrices for the propagation
 MatMaker = SetupMatrices(guestlist,verbose,manual_removal)
 ## Specify the tables, their number of seats, and locations
@@ -67,7 +66,7 @@ if(0): # the whole hall
     table_posns=np.array([[3,6],[8,6],[13,6],[18,6],[23,6]]) #x,-y [coordinate of top left seat]
 else:
     table_types=['long','long','long']
-    table_seats=[25,26,26]
+    table_seats=[27,26,26]
     table_posns=np.array([[8,6],[13,6],[18,6]])
 MatMaker.specify_hall_params(table_types,table_seats,table_posns,guestlist.Ntot)
 ## Get the matrices and metrics object
