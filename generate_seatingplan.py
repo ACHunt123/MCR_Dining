@@ -56,7 +56,8 @@ guestlist=AttendeeScraper(verbose,manual_removal)
 guestlist.load_Upay(event_booking_html)
 # guestlist.load_Swaps(swaps_xls)
 if verbose: print('\n Full Guestlist\n');guestlist.pretty_print(print_guests=True)
-
+print(guestlist.Ntot)
+exit()
 ### Get the Matrices for the propagation
 MatMaker = SetupMatrices(guestlist,verbose,manual_removal)
 ## Specify the tables, their number of seats, and locations

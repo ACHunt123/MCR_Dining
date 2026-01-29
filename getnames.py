@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import sys
 import pandas as pd
 import numpy as np
-
+from collections import defaultdict
 
 class AttendeeScraper:
     def __init__(self, verbose=0, manual_removal=0):
@@ -21,6 +21,23 @@ class AttendeeScraper:
 
     def vprint(self, string):
         if self.verbose: print(string)
+
+    def number_duplicates(self,names):
+        counts = defaultdict(int)
+        result = []
+        for name in names:
+            counts[name] += 1
+        # put back in the single ones
+        for name in names:
+            if counts[name] == 1:
+                result.append(name)
+                counts[name] -= 1 #remove them from the count
+        # number the rest
+        for name in names:
+            if counts[name] >= 1:
+                result.append(f"{name} ({counts[name]})")
+                counts[name] -= 1
+        return result
 
     def remove_people_n_their_guests(self,namelist,removedlist):
         '''remove a set of people from the list (and also their guests)'''
@@ -54,16 +71,18 @@ class AttendeeScraper:
                 attendee_name = attendee.get_text(strip=True).replace("(Caian ticket - Drinking)", "")
                 ## add the attendee to the dict
                 self.attendees_guest_map[attendee_name]=[]
-            n=1
+
+            list_of_guests=[] # list of the guests of the attendee (work array)
             for guest in guests_of_atendee:
-                ## add the guests to the dictionary
                 guest_name = guest.get_text(strip=True).replace("(Caian ticket - Drinking)", "")
                 if guest_name != 'Guest':
-                    self.attendees_guest_map[attendee_name].append(guest_name)
+                    list_of_guests.append(guest_name)
                 else: # If name not given default "to Guest of ..."
-                    self.attendees_guest_map[attendee_name].append(f'Guest of {attendee_name} ({n})')
-                    # self.attendees_guest_map[attendee_name].append(f'Guest of {attendee_name}')
-                    n+=1
+                    list_of_guests.append(f'Guest of {attendee_name}')
+            ## deal with duplicates
+            list_of_guests=self.number_duplicates(list_of_guests)
+            ## add the guests to the dictionary
+            self.attendees_guest_map[attendee_name].extend(list_of_guests)
         
         self.n_removed=0
         if(self.manual_removal): # manual removal of people from calculation because they are difficult
@@ -77,6 +96,8 @@ class AttendeeScraper:
         for attendee, guests in self.attendees_guest_map.items():
             self.everyone.append(attendee)
             self.everyone.extend(guests)
+
+        if len(self.everyone)!=len(sorted(list(set(self.everyone)))): raise ValueError('There are duplicates that are being removed')
         self.everyone=sorted(list(set(self.everyone))) #list(set( )) removes duplicates
         self.Ntot=len(self.everyone)
         return
